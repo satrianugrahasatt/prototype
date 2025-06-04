@@ -6,8 +6,7 @@ namespace App\Http\Middleware;
 // use Fideloper\Proxy\TrustProxies as Middleware;
 // Jika Anda menggunakan Laravel versi >= 9, seharusnya:
 use Illuminate\Http\Middleware\TrustProxies as Middleware;
-
-use Illuminate\Http\Request;
+use Illuminate\Http\Request; // Tidak ada baris kosong di atas baris ini
 
 class TrustProxies extends Middleware
 {
@@ -16,8 +15,7 @@ class TrustProxies extends Middleware
      *
      * @var array|string|null
      */
-    // Modifikasi di sini:
-    protected $proxies = '*'; // Ini mengizinkan semua proxy, aman untuk Cloud Run
+    protected $proxies = '*';
 
     /**
      * The headers that should be used to detect proxies.
@@ -28,6 +26,6 @@ class TrustProxies extends Middleware
         Request::HEADER_X_FORWARDED_FOR |
         Request::HEADER_X_FORWARDED_HOST |
         Request::HEADER_X_FORWARDED_PORT |
-        Request::HEADER_X_FORWARDED_PROTO | // Pastikan ini ada
-        Request::HEADER_X_FORWARDED_AWS_ELB; // Untuk Laravel < 9. Di Laravel >= 9, ini diganti Request::HEADER_X_FORWARDED_PREFIX
+        Request::HEADER_X_FORWARDED_PROTO |
+        Request::HEADER_X_FORWARDED_AWS_ELB; // atau Request::HEADER_X_FORWARDED_PREFIX untuk Laravel 9+
 }
