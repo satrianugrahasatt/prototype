@@ -37,7 +37,7 @@ return [
     'channels' => [
         'stack' => [
             'driver' => 'stack',
-            'channels' => ['single'],
+            'channels' => ['stderr', 'single'], // Gunakan stderr untuk Cloud Run, single sebagai cadangan
             'ignore_exceptions' => false,
         ],
 
