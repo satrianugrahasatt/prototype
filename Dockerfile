@@ -23,11 +23,6 @@ COPY . .
 # Install Composer dependencies
 RUN composer install --prefer-dist --no-progress --no-suggest --optimize-autoloader --no-dev
 
-# Optimize Laravel
-RUN php artisan config:cache && \
-    php artisan route:cache && \
-    php artisan view:cache
-
 # Set permissions
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache /var/www/html/public
 RUN chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache /var/www/html/public
@@ -35,6 +30,7 @@ RUN chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache /var/www/ht
 # Configure Apache to listen on port 8080
 RUN sed -i 's/Listen 80/Listen 8080/' /etc/apache2/ports.conf
 RUN echo '<VirtualHost *:8080>\n\
+    ServerName hrms-service\n\
     DocumentRoot /var/www/html/public\n\
     <Directory /var/www/html/public>\n\
         Options -Indexes +FollowSymLinks\n\
