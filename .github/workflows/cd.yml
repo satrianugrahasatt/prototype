@@ -50,7 +50,7 @@ jobs:
             --platform managed \
             --region us-central1 \
             --service-account hrms-deployment@feisty-reality-461020-d5.iam.gserviceaccount.com \
-            --set-env-vars "APP_KEY=${{ secrets.APP_KEY }},DB_CONNECTION=mysql,DB_HOST=${{ secrets.CLOUD_SQL_HOST }},DB_PORT=3306,DB_DATABASE=fp_pso,DB_USERNAME=root,DB_PASSWORD=" \
+            --set-env-vars "DB_CONNECTION=mysql,DB_HOST=${{ secrets.CLOUD_SQL_HOST }},DB_PORT=3306,DB_DATABASE=fp_pso,DB_USERNAME=root,DB_PASSWORD=" \
             --timeout 600 \
             --allow-unauthenticated \
             --quiet
