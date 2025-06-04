@@ -35,7 +35,11 @@ Auth::routes([
     'reset' => false,
 ]);
 
-Route::get('/', [WelcomeController::class, 'index'])->name('welcome')->middleware('guest');
+# Route::get('/', [WelcomeController::class, 'index'])->name('welcome')->middleware('guest');
+Route::get('/', function () {
+    return 'Cloud Run Laravel OK';
+});
+
 Route::get('/welcome/announcements', [WelcomeController::class, 'announcements'])->name('welcome.announcements')->middleware('guest');
 Route::get('/welcome/announcements/{announcement}', [WelcomeController::class, 'announcementShow'])->name('welcome.announcements.show')->middleware('guest');
 Route::get('/welcome/recruitments', [WelcomeController::class, 'recruitments'])->name('welcome.recruitments')->middleware('guest');
