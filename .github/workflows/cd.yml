@@ -1,0 +1,56 @@
+name: Laravel CD
+
+on:
+  push:
+    branches:
+      - main
+  workflow_run:
+    workflows: ["Laravel CI"]
+    types:
+      - completed
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    env:
+      GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v1
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Set up Google Cloud SDK
+        uses: google-github-actions/setup-gcloud@v1
+        with:
+          project_id: ${{ secrets.GCP_PROJECT_ID }}
+
+      - name: Configure Docker to use gcloud as a credential helper
+        run: gcloud auth configure-docker gcr.io --quiet
+
+      - name: Debug Docker Config
+        run: cat ~/.docker/config.json
+
+      - name: Build and Push Docker Image
+        run: |
+          docker build -t gcr.io/${{ secrets.GCP_PROJECT_ID }}/gcr:${{ github.sha }} .
+          docker push gcr.io/${{ secrets.GCP_PROJECT_ID }}/gcr:${{ github.sha }}
+
+      - name: Deploy to Cloud Run
+        run: |
+          gcloud run deploy hrms-service \
+            --image gcr.io/${{ secrets.GCP_PROJECT_ID }}/gcr:${{ github.sha }} \
+            --platform managed \
+            --region us-central1 \
+            --service-account hrms-deployment@feisty-reality-461020-d5.iam.gserviceaccount.com \
+            --set-env-vars DB_CONNECTION=mysql,DB_HOST=${{ secrets.CLOUD_SQL_HOST }},DB_PORT=3306,DB_DATABASE=fp_pso,DB_USERNAME=root,DB_PASSWORD=root \
+            --timeout 600 \
+            --allow-unauthenticated \
+            --quiet
