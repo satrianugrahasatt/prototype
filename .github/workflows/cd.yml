@@ -67,7 +67,7 @@ jobs:
             -e DB_PASSWORD='' \
             -e APP_KEY=${{ secrets.APP_KEY }} \
             gcr.io/${{ secrets.GCP_PROJECT_ID }}/gcr:${{ github.sha }} \
-            php artisan db:monitor
+            php artisan tinker --execute="DB::connection()->getPdo(); echo 'Connection successful';"
 
       - name: Run Database Migrations
         run: |
