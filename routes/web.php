@@ -5,7 +5,6 @@ use App\Http\Controllers\AttendancesController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DepartmentsController;
 use App\Http\Controllers\EmployeesController;
-use App\Http\Controllers\EmployeeScoresController;
 use App\Http\Controllers\LogsController;
 use App\Http\Controllers\PositionsController;
 use App\Http\Controllers\ProfilesController;
