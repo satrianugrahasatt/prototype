@@ -34,9 +34,10 @@ Auth::routes([
 ]);
 
 Route::get('/', [WelcomeController::class, 'index'])->name('welcome')->middleware('guest');
-
 Route::get('/welcome/announcements', [WelcomeController::class, 'announcements'])->name('welcome.announcements')->middleware('guest');
 Route::get('/welcome/announcements/{announcement}', [WelcomeController::class, 'announcementShow'])->name('welcome.announcements.show')->middleware('guest');
+Route::get('/welcome/recruitments', [WelcomeController::class, 'recruitments'])->name('welcome.recruitments')->middleware('guest');
+Route::get('/welcome/recruitments/{recruitment}', [WelcomeController::class, 'recruitmentShow'])->name('welcome.recruitments.show')->middleware('guest');
 Route::post('/recruitment-candidates', [RecruitmentCandidatesController::class, 'store'])->name('recruitment-candidates.store');
 
 Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
