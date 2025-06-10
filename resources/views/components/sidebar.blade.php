@@ -1,7 +1,7 @@
 <nav id="sidebar" class="navbar-nav">
   <div class="sidebar-header">
     <a class="navbar-brand text-white" href="{{ url('/dashboard') }}">
-        <h3> {{ config('app.name', 'Laravel') }}</h3>
+        <h3> {{ config('app.name', 'HRMS') }}</h3>
     </a>
   </div>
   <ul class="list-unstyled components">
