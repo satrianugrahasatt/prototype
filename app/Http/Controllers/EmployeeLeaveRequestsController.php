@@ -3,12 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreEmployeeLeaveRequest;
-use App\Http\Requests\StoreEmployeeRequest;
 use App\Models\EmployeeLeave;
 use App\Models\EmployeeLeaveRequest;
 use App\Models\Log;
 use Carbon\Carbon;
-use Illuminate\Http\Request;
 
 class EmployeeLeaveRequestsController extends Controller
 {
@@ -20,6 +18,7 @@ class EmployeeLeaveRequestsController extends Controller
 
         $this->employeeLeaveRequests = resolve(EmployeeLeaveRequest::class);
     }
+
     /**
      * Display a listing of the resource.
      *
@@ -61,7 +60,7 @@ class EmployeeLeaveRequestsController extends Controller
 
         $diff = $from->diffInWeekdays($to);
 
-        if($employeeLeave->leaves_quota - $employeeLeave->used_leaves < $diff) {
+        if ($employeeLeave->leaves_quota - $employeeLeave->used_leaves < $diff) {
             return back()->with('status', 'You take too much days off.');
         }
 
@@ -69,11 +68,11 @@ class EmployeeLeaveRequestsController extends Controller
             'employee_id' => $request->input('employee_id'),
             'from' => $request->input('from'),
             'to' => $request->input('to'),
-            'message' => $request->input('message')
+            'message' => $request->input('message'),
         ]);
 
         Log::create([
-            'description' => auth()->user()->employee->name . " created a leave request from '" . $request->input('from') . "' to '" . $request->input('to') . "'"
+            'description' => auth()->user()->employee->name." created a leave request from '".$request->input('from')."' to '".$request->input('to')."'",
         ]);
 
         return redirect()->route('employees-leave-request')->with('status', 'Successfully created an employee leave request.');
@@ -82,7 +81,6 @@ class EmployeeLeaveRequestsController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\Models\EmployeeLeaveRequest  $employeeLeaveRequest
      * @return \Illuminate\Http\Response
      */
     public function show(EmployeeLeaveRequest $employeeLeaveRequest)
@@ -106,7 +104,6 @@ class EmployeeLeaveRequestsController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\Models\EmployeeLeaveRequest  $employeeLeaveRequest
      * @return \Illuminate\Http\Response
      */
     public function edit(EmployeeLeaveRequest $employeeLeaveRequest)
@@ -118,25 +115,24 @@ class EmployeeLeaveRequestsController extends Controller
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\EmployeeLeaveRequest  $employeeLeaveRequest
      * @return \Illuminate\Http\Response
      */
     public function update(StoreEmployeeLeaveRequest $request, EmployeeLeaveRequest $employeeLeaveRequest)
     {
-        if($request->type == 'edit') {
+        if ($request->type == 'edit') {
             $this->employeeLeaveRequests->where('id', $employeeLeaveRequest->id)
                 ->update([
-                'from' => $request->input('from'),
-                'to' => $request->input('to'),
-                'message' => $request->input('message')
+                    'from' => $request->input('from'),
+                    'to' => $request->input('to'),
+                    'message' => $request->input('message'),
                 ]);
 
             Log::create([
-                'description' => auth()->user()->employee->name . " updated a leave request's detail"
+                'description' => auth()->user()->employee->name." updated a leave request's detail",
             ]);
 
             return redirect()->route('employees-leave-request')->with('status', 'Successfully updated employee leave request.');
-        } else if ($request->type == 'accept') {
+        } elseif ($request->type == 'accept') {
             $employeeLeave = EmployeeLeave::where('employee_id', $employeeLeaveRequest->employee_id)->first();
 
             $from = Carbon::parse($employeeLeaveRequest->from);
@@ -150,25 +146,24 @@ class EmployeeLeaveRequestsController extends Controller
 
             $this->employeeLeaveRequests->where('id', $employeeLeaveRequest->id)
                 ->update([
-                'status' => 'APPROVED',
-                'checked_by' => $request->input('checked_by'),
-                'comment' => $request->input('comment')
+                    'status' => 'APPROVED',
+                    'checked_by' => $request->input('checked_by'),
+                    'comment' => $request->input('comment'),
                 ]);
 
             $employeeLeave->update(['used_leaves' => $employeeLeave->used_leaves + $diff]);
 
             Log::create([
-                'description' => auth()->user()->employee->name . " approved ". $employeeLeaveRequest->employee->name  ."'s leave request from '" . $employeeLeaveRequest->from . "' to '" . $employeeLeaveRequest->to . "'"
+                'description' => auth()->user()->employee->name.' approved '.$employeeLeaveRequest->employee->name."'s leave request from '".$employeeLeaveRequest->from."' to '".$employeeLeaveRequest->to."'",
             ]);
 
             return redirect()->route('employees-leave-request')->with('status', 'Successfully accepted employee leave request.');
-        };
+        }
     }
 
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Models\EmployeeLeaveRequest  $employeeLeaveRequest
      * @return \Illuminate\Http\Response
      */
     public function destroy(EmployeeLeaveRequest $employeeLeaveRequest)
@@ -177,17 +172,17 @@ class EmployeeLeaveRequestsController extends Controller
             ->update([
                 'status' => 'REJECTED',
                 'checked_by' => auth()->user()->employee->id,
-                'comment' => request()->input('comment')
+                'comment' => request()->input('comment'),
             ]);
 
         Log::create([
-            'description' => auth()->user()->employee->name . " rejected ". $employeeLeaveRequest->employee->name  ."'s leave request from '" . $employeeLeaveRequest->from . "' to '" . $employeeLeaveRequest->to . "'"
+            'description' => auth()->user()->employee->name.' rejected '.$employeeLeaveRequest->employee->name."'s leave request from '".$employeeLeaveRequest->from."' to '".$employeeLeaveRequest->to."'",
         ]);
 
         return redirect()->route('employees-leave-request')->with('status', 'Successfully rejected employee leave request.');
     }
 
-    public function print ()
+    public function print()
     {
         $employeeLeaveRequests = EmployeeLeaveRequest::with('employee', 'checkedBy')->latest()->get();
 

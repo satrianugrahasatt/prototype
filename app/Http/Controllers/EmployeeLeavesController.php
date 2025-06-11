@@ -11,6 +11,7 @@ class EmployeeLeavesController extends Controller
     {
         $this->middleware('auth');
     }
+
     /**
      * Display a listing of the resource.
      *
@@ -34,18 +35,16 @@ class EmployeeLeavesController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
     {
-       //
+        //
     }
 
     /**
      * Display the specified resource.
      *
-     * @param  \App\Models\EmployeeLeave  $employeeLeave
      * @return \Illuminate\Http\Response
      */
     public function show(EmployeeLeave $employeeLeave)
@@ -56,7 +55,6 @@ class EmployeeLeavesController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\Models\EmployeeLeave  $employeeLeave
      * @return \Illuminate\Http\Response
      */
     public function edit(EmployeeLeave $employeeLeave)
@@ -67,8 +65,6 @@ class EmployeeLeavesController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\EmployeeLeave  $employeeLeave
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, EmployeeLeave $employeeLeave)
@@ -79,7 +75,6 @@ class EmployeeLeavesController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Models\EmployeeLeave  $employeeLeave
      * @return \Illuminate\Http\Response
      */
     public function destroy(EmployeeLeave $employeeLeave)
