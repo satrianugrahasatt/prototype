@@ -6,11 +6,6 @@ use Illuminate\Support\Facades\Schema;
 
 class CreateAccessesTable extends Migration
 {
-    /**
-     * Run the migrations.
-     *
-     * @return void
-     */
     public function up()
     {
         Schema::create('accesses', function (Blueprint $table) {
@@ -25,11 +20,6 @@ class CreateAccessesTable extends Migration
         });
     }
 
-    /**
-     * Reverse the migrations.
-     *
-     * @return void
-     */
     public function down()
     {
         Schema::dropIfExists('accesses');

@@ -21,40 +21,17 @@ class AttendancesController extends Controller
         $this->middleware('auth');
 
         $this->attendances = resolve(Attendance::class);
-
         $this->attendanceTimes = resolve(AttendanceTime::class)->get();
         $this->attendanceTypes = resolve(AttendanceType::class)->get();
     }
 
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
     public function index()
     {
         $attendances = $this->attendances->paginate();
 
-        $alreadyCheckedInAndOut = false;
-
         return view('pages.attendances', compact('attendances'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @return \Illuminate\Http\Response
-     */
     public function store(Request $request)
     {
         $inId = $this->getId($this->attendanceTimes, 'IN');
@@ -71,44 +48,35 @@ class AttendancesController extends Controller
             $type = 'SICK';
             $time = 'OTHER';
         } else {
-            $checkForAttendance = Attendance::whereBetween('created_at', [Carbon::today('Asia/Jakarta'), Carbon::tomorrow('Asia/Jakarta')])
+            $checkForAttendance = Attendance::whereBetween('created_at', [
+                Carbon::today('Asia/Jakarta'),
+                Carbon::tomorrow('Asia/Jakarta'),
+            ])
                 ->where('employee_id', auth()->user()->employee->id)
                 ->whereIn('attendance_time_id', [$inId, $outId])
+                ->latest()
                 ->first();
 
             if ($checkForAttendance === null) {
+                // No attendance today, so check-in
                 $time = 'IN';
-
                 if ($now > $checkInTime) {
                     return redirect()->route('attendances')->with('status', 'Please wait for checkin time.');
                 }
-
-                if ($now <= $checkInTime) {
-                    $type = 'ONTIME';
-                } else {
-                    $type = 'LATE';
-                }
-            } elseif ($checkForAttendance->attendance_time_id !== $inId || $checkForAttendance->attendance_time_id !== $outId) {
+                $type = 'ONTIME';
+            } else {
+                // Attendance exists, check if it's IN or OUT
                 if ($checkForAttendance->attendance_time_id == $inId) {
+                    // Has checked in, so check-out
                     $time = 'OUT';
-
                     if ($now < $checkOutTime) {
                         return redirect()->route('attendances')->with('status', 'Please wait for checkout time.');
                     }
-
-                    if ($now == $checkOutTime) {
-                        $type = 'ONTIME';
-                    } else {
-                        $type = 'OVERTIME';
-                    }
+                    $type = $now >= $checkOutTime ? 'ONTIME' : 'OVERTIME';
                 } else {
+                    // Has checked out, allow new check-in
                     $time = 'IN';
-
-                    if ($now <= $checkInTime) {
-                        $type = 'ONTIME';
-                    } else {
-                        $type = 'LATE';
-                    }
+                    $type = $now <= $checkInTime ? 'ONTIME' : 'LATE';
                 }
             }
         }
@@ -120,44 +88,7 @@ class AttendancesController extends Controller
             'message' => $request->input('message'),
         ]);
 
-        return back();
-    }
-
-    /**
-     * Display the specified resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function show(Attendance $attendance)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(Attendance $attendance)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, Attendance $attendance) {}
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy(Attendance $attendance)
-    {
-        //
+        return redirect()->route('attendances')->with('status', 'Attendance recorded successfully.');
     }
 
     public function print()
@@ -169,8 +100,14 @@ class AttendancesController extends Controller
 
     public function getId($array, $type)
     {
-        return $array->filter(function ($item) use ($type) {
+        $item = $array->filter(function ($item) use ($type) {
             return $item->name == $type;
-        })->first()->id;
+        })->first();
+
+        if (! $item) {
+            throw new \Exception("Attendance time or type '$type' not found.");
+        }
+
+        return $item->id;
     }
 }

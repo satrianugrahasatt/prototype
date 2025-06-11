@@ -2,11 +2,13 @@
 
 namespace Tests\Feature;
 
+use App\Models\Access;
 use App\Models\Attendance;
 use App\Models\AttendanceTime;
 use App\Models\AttendanceType;
 use App\Models\Department;
 use App\Models\Employee;
+use App\Models\Menu;
 use App\Models\Position;
 use App\Models\Role;
 use App\Models\User;
@@ -42,7 +44,7 @@ class AttendancesControllerTest extends TestCase
         parent::setUp();
 
         // Create a role
-        $this->role = Role::create([
+        $this->role = Role::factory()->create([
             'name' => 'Test Role',
             'is_super_user' => false,
         ]);
@@ -62,6 +64,19 @@ class AttendancesControllerTest extends TestCase
         $this->attendanceTimeOut = AttendanceTime::create(['name' => 'OUT']);
         $this->attendanceTypeOntime = AttendanceType::create(['name' => 'ONTIME']);
         $this->attendanceTypeLate = AttendanceType::create(['name' => 'LATE']);
+        $attendanceTypeSick = AttendanceType::create(['name' => 'SICK']); // For sick attendance
+        $attendanceTypeOther = AttendanceTime::create(['name' => 'OTHER']); // For sick time
+        $attendanceTypeOvertime = AttendanceType::create(['name' => 'OVERTIME']); // For check-out
+
+        // Create menu for attendances
+        $menu = Menu::factory()->create(['name' => 'attendances']);
+
+        // Create access for the role
+        Access::factory()->create([
+            'menu_id' => $menu->id,
+            'role_id' => $this->role->id,
+            'status' => 2, // Match AccessFactory
+        ]);
 
         // Create a user
         $this->user = User::create([
@@ -172,10 +187,11 @@ class AttendancesControllerTest extends TestCase
             'message' => 'Sick leave request',
         ]);
 
-        $response->assertRedirect();
+        $response->assertRedirect(route('attendances'));
         $this->assertDatabaseHas('attendances', [
             'employee_id' => $this->employee->id,
             'message' => 'Sick leave request',
+            'attendance_type_id' => AttendanceType::where('name', 'SICK')->first()->id,
         ]);
     }
 
