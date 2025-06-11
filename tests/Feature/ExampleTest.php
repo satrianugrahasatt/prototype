@@ -4,13 +4,10 @@ namespace Tests\Feature;
 
 use App\Models\Department;
 use App\Models\Employee;
-use App\Models\EmployeeDetail;
 use App\Models\Position;
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Http\UploadedFile;
-use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 class EmployeesControllerTest extends TestCase
@@ -76,7 +73,6 @@ class EmployeesControllerTest extends TestCase
         $response->assertViewHas('positions', fn ($viewPositions) => $viewPositions->count() === $positions->count());
     }
 
-
     /** @test */
     public function it_can_display_employee_details()
     {
@@ -115,7 +111,6 @@ class EmployeesControllerTest extends TestCase
         $response->assertViewHas('positions', fn ($viewPositions) => $viewPositions->count() === $positions->count());
     }
 
-    
     /** @test */
     public function it_can_delete_employee()
     {
