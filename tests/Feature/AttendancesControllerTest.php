@@ -20,13 +20,21 @@ class AttendancesControllerTest extends TestCase
     use RefreshDatabase;
 
     protected $user;
+
     protected $employee;
+
     protected $attendanceTimeIn;
+
     protected $attendanceTimeOut;
+
     protected $attendanceTypeOntime;
+
     protected $attendanceTypeLate;
+
     protected $role;
+
     protected $department;
+
     protected $position;
 
     protected function setUp(): void

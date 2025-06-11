@@ -5,7 +5,6 @@ namespace Tests\Feature;
 use App\Models\Announcement;
 use App\Models\Department;
 use App\Models\Employee;
-use App\Models\Log;
 use App\Models\Position;
 use App\Models\Role;
 use App\Models\User;
@@ -20,9 +19,13 @@ class AnnouncementsControllerTest extends TestCase
     use RefreshDatabase;
 
     protected $user;
+
     protected $employee;
+
     protected $department;
+
     protected $role;
+
     protected $position;
 
     protected function setUp(): void
