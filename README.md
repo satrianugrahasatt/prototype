@@ -1,5 +1,12 @@
 # Human Resource Management System
-
+## Product Description
+### Latar Belakang
+### Tujuan
+### Manfaat
+## Features
+## Technology/Tools
+## CI Workflow
+## CD Workflow
 This is an web application for managing human resources in a company. It was built using Laravel 8.
 <br>
 <br>
