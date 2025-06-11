@@ -23,7 +23,10 @@ class AuthControllerTest extends TestCase
         $role = Role::create(['name' => 'Test Role']);
 
         // Create a menu for dashboard
-        $menu = Menu::create(['name' => 'dashboard']);
+        $menu = Menu::create([
+            'name' => 'dashboard',
+            'is_active' => true,
+        ]);
 
         // Grant access to the role for the dashboard menu
         Access::create([
