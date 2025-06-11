@@ -5,7 +5,6 @@ namespace Tests\Feature;
 use App\Models\Announcement;
 use App\Models\Department;
 use App\Models\Employee;
-use App\Models\Log;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
@@ -18,7 +17,9 @@ class AnnouncementsControllerTest extends TestCase
     use RefreshDatabase;
 
     protected $user;
+
     protected $employee;
+
     protected $department;
 
     protected function setUp(): void
