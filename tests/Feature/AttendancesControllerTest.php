@@ -5,7 +5,10 @@ namespace Tests\Feature;
 use App\Models\Attendance;
 use App\Models\AttendanceTime;
 use App\Models\AttendanceType;
+use App\Models\Department;
 use App\Models\Employee;
+use App\Models\Position;
+use App\Models\Role;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -17,43 +20,58 @@ class AttendancesControllerTest extends TestCase
     use RefreshDatabase;
 
     protected $user;
-
     protected $employee;
-
     protected $attendanceTimeIn;
-
     protected $attendanceTimeOut;
-
     protected $attendanceTypeOntime;
-
     protected $attendanceTypeLate;
+    protected $role;
+    protected $department;
+    protected $position;
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        // Set up attendance times and types
+        // Create a role
+        $this->role = Role::create([
+            'name' => 'Test Role',
+            'is_super_user' => false,
+        ]);
+
+        // Create a department
+        $this->department = Department::create([
+            'name' => 'HR',
+            'code' => 'HRD',
+            'address' => '123 Test Street',
+        ]);
+
+        // Create a position
+        $this->position = Position::create(['name' => 'Test Position']);
+
+        // Create attendance times and types
         $this->attendanceTimeIn = AttendanceTime::create(['name' => 'IN']);
         $this->attendanceTimeOut = AttendanceTime::create(['name' => 'OUT']);
         $this->attendanceTypeOntime = AttendanceType::create(['name' => 'ONTIME']);
         $this->attendanceTypeLate = AttendanceType::create(['name' => 'LATE']);
 
-        // Create a user and employee
+        // Create a user
         $this->user = User::create([
             'name' => 'John Doe',
             'email' => 'john@example.com',
             'password' => Hash::make('password123'),
             'is_active' => true,
-            'role_id' => 1,
+            'role_id' => $this->role->id,
         ]);
 
+        // Create an employee
         $this->employee = Employee::create([
             'user_id' => $this->user->id,
             'name' => 'John Doe',
             'start_of_contract' => now(),
             'end_of_contract' => now()->addYear(),
-            'department_id' => 1,
-            'position_id' => 1,
+            'department_id' => $this->department->id,
+            'position_id' => $this->position->id,
         ]);
     }
 

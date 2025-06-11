@@ -9,6 +9,8 @@ class AttendanceType extends Model
 {
     use HasFactory;
 
+    protected $fillable = ['name'];
+
     public function get()
     {
         return $this->latest()->get();

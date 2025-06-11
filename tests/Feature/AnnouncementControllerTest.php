@@ -5,6 +5,9 @@ namespace Tests\Feature;
 use App\Models\Announcement;
 use App\Models\Department;
 use App\Models\Employee;
+use App\Models\Log;
+use App\Models\Position;
+use App\Models\Role;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
@@ -17,34 +20,48 @@ class AnnouncementsControllerTest extends TestCase
     use RefreshDatabase;
 
     protected $user;
-
     protected $employee;
-
     protected $department;
+    protected $role;
+    protected $position;
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        // Create a department
-        $this->department = Department::create(['name' => 'HR']);
+        // Create a role
+        $this->role = Role::create([
+            'name' => 'Test Role',
+            'is_super_user' => false,
+        ]);
 
-        // Create a user and employee for authentication
+        // Create a department
+        $this->department = Department::create([
+            'name' => 'HR',
+            'code' => 'HRD',
+            'address' => '123 Test Street',
+        ]);
+
+        // Create a position
+        $this->position = Position::create(['name' => 'Test Position']);
+
+        // Create a user
         $this->user = User::create([
             'name' => 'John Doe',
             'email' => 'john@example.com',
             'password' => Hash::make('password123'),
             'is_active' => true,
-            'role_id' => 1,
+            'role_id' => $this->role->id,
         ]);
 
+        // Create an employee
         $this->employee = Employee::create([
             'user_id' => $this->user->id,
             'name' => 'John Doe',
             'start_of_contract' => now(),
             'end_of_contract' => now()->addYear(),
             'department_id' => $this->department->id,
-            'position_id' => 1,
+            'position_id' => $this->position->id,
         ]);
     }
 
