@@ -2,23 +2,20 @@
 
 namespace Tests\Feature;
 
-use Tests\TestCase;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use App\Models\User;
-use App\Models\Role;
 use App\Models\Department;
-use App\Models\Position;
 use App\Models\Employee;
 use App\Models\EmployeeDetail;
-use App\Models\EmployeeLeave;
-use App\Models\Log;
+use App\Models\Position;
+use App\Models\Role;
+use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\Hash;
+use Tests\TestCase;
 
 class EmployeesControllerTest extends TestCase
 {
-     /**
+    /**
      * A basic test example.
      *
      * @return void
@@ -131,7 +128,7 @@ class EmployeesControllerTest extends TestCase
             'used_leaves' => 0,
         ]);
         $this->assertDatabaseHas('logs', [
-            'description' => $this->user->employee->name . " created an employee named 'John Doe'",
+            'description' => $this->user->employee->name." created an employee named 'John Doe'",
         ]);
 
         Storage::disk('public')->assertExists('photos/photo.jpg');
@@ -236,7 +233,7 @@ class EmployeesControllerTest extends TestCase
             'email' => 'jane@example.com',
         ]);
         $this->assertDatabaseHas('logs', [
-            'description' => $this->user->employee->name . " updated an employee's detail named 'Jane Doe'",
+            'description' => $this->user->employee->name." updated an employee's detail named 'Jane Doe'",
         ]);
 
         Storage::disk('public')->assertExists('photos/new_photo.jpg');
@@ -260,7 +257,7 @@ class EmployeesControllerTest extends TestCase
         $this->assertDatabaseMissing('users', ['id' => $employee->user_id]);
         $this->assertDatabaseMissing('employees', ['id' => $employee->id]);
         $this->assertDatabaseHas('logs', [
-            'description' => $this->user->employee->name . " deleted an employee named '{$employee->name}'",
+            'description' => $this->user->employee->name." deleted an employee named '{$employee->name}'",
         ]);
     }
 
