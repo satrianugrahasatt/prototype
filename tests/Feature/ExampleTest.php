@@ -2,10 +2,6 @@
 
 namespace Tests\Feature;
 
-use App\Models\Department;
-use App\Models\Employee;
-use App\Models\Position;
-use App\Models\Role;
 use App\Models\User;
 use Illuminate\Auth\Notifications\VerifyEmail;
 use Illuminate\Foundation\Testing\RefreshDatabase;
