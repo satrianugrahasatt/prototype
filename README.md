@@ -2,10 +2,10 @@
 ## Product Description
 
 ### Deskripsi
-    Aplikasi HRMS - Human Resource Management System merupakan web aplikasi yang dirancang untuk membantu perusahaan dalam mengelola data dan aktivitas karyawan secara terpusat dan terstruktur. Fitur yang tersedia meliputi pembuatan departemen, pengajuan cuti, pengumuman perusahaan, pencatatan kehadiran, manajemen data karyawan, pembuatan role atau hak akses, serta pengaturan kategori penilaian kinerja karyawan.
+Aplikasi HRMS - Human Resource Management System merupakan web aplikasi yang dirancang untuk membantu perusahaan dalam mengelola data dan aktivitas karyawan secara terpusat dan terstruktur. Fitur yang tersedia meliputi pembuatan departemen, pengajuan cuti, pengumuman perusahaan, pencatatan kehadiran, manajemen data karyawan, pembuatan role atau hak akses, serta pengaturan kategori penilaian kinerja karyawan.
  
 ### Latar Belakang
-    Banyak perusahaan masih menggunakan cara manual seperti dokumen cetak atau spreadsheet untuk mengelola kehadiran, cuti, dan data karyawan. Cara ini kurang efektif, memakan waktu, dan rawan kesalahan. Selain itu, perusahaan modern memerlukan sistem yang dapat diakses dengan mudah dan mampu memberikan informasi secara real-time agar pengelolaan sumber daya manusia menjadi lebih cepat, terkontrol, dan terukur. Karena itu, dibutuhkan sistem HRMS yang terintegrasi untuk mempermudah proses administrasi HR.
+Banyak perusahaan masih menggunakan cara manual seperti dokumen cetak atau spreadsheet untuk mengelola kehadiran, cuti, dan data karyawan. Cara ini kurang efektif, memakan waktu, dan rawan kesalahan. Selain itu, perusahaan modern memerlukan sistem yang dapat diakses dengan mudah dan mampu memberikan informasi secara real-time agar pengelolaan sumber daya manusia menjadi lebih cepat, terkontrol, dan terukur. Karena itu, dibutuhkan sistem HRMS yang terintegrasi untuk mempermudah proses administrasi HR.
 
 ### Tujuan
 1. Mempermudah pengelolaan kehadiran, cuti, dan data karyawan secara digital
