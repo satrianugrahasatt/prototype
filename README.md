@@ -163,9 +163,6 @@ You can log into the application with this credentials (if you did the database 
 -   Username: `admin@gmail.com`
 -   Password: `admin`
 
-
-
-
 ## Screenshots
 
 **Home Screen**
@@ -174,17 +171,3 @@ You can log into the application with this credentials (if you did the database 
 **Dashboard Screen**
 ![Dashboard Screen](./documentation-images/Dashboard.png)
 
-**Employee List Screen**
-![Employee List Screen](./documentation-images/Employee%20List.png)
-
-**Employee Leaves Screen**
-![Employee Leaves Screen](./documentation-images/Employees%20Leaves.png)
-
-**Attendances Screen**
-![Attendances Screen](./documentation-images/Attendances.png)
-
-**Recruitment Screen**
-![Recruitment Screen](./documentation-images/Recruitment.png)
-
-**Recruitment Detail Screen**
-![Recruitment Detail Screen](./documentation-images/Recruitment%20Detail.png)
