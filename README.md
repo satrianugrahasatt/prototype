@@ -106,6 +106,42 @@ jobs yang dilakukan:
 ## PIPELINE CI/CD
 ![Pipeline](./documentation-images/Pipeline.png)
 
+## Detail Configurations
+### Github 
+1. Setup repository dan branches
+2. Setup Secret key untuk menyimpan GCP ID, APP_KEY, CLOUD SQL HOST, dan GCP SA KEY
+
+### GCP
+1. Setup nama project
+2. Setup role GCP IAM
+3. Setup Cloud SQL (Instance name)
+
+### Docker
+1. Menggunakan PHP image official dengan Apache
+2. Menginstall sistem dependensi dan ekstensi PHP
+3. Menginstall Composer
+4. Mengatur working directory
+5. Copy file aplikasi
+6. Menjalankan composer dependensi
+7. Mengatur izin chown chmod
+8. Konfigurasi listener di port 8080
+9. Mengaktifkan apache rewrite module
+10. Menjalankan port 8080
+11. Menjalankan apache
+ 
+### PHPUnit.xml
+1. Bootstrap: Autoload semua dependency (vendor/autoload.php).
+2. Output: Warna aktif, log detail (verbose).
+3. Test Suite:
+Unit Test: ./tests/Unit
+Feature Test: ./tests/Feature
+4. Code Coverage:
+Mengukur kode di folder ./app.
+Semua file diproses, termasuk yang belum dites.
+5. Environment Testing:
+Mode testing, database khusus.
+Cache, session, email, queue semua disimpan sementara (nggak persist).
+Hashing dipercepat, Telescope nonaktif.
 
 ## Steps to run this application:
 
@@ -126,6 +162,9 @@ You can log into the application with this credentials (if you did the database 
 
 -   Username: `admin@gmail.com`
 -   Password: `admin`
+
+
+
 
 ## Screenshots
 
