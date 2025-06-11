@@ -7,7 +7,11 @@ use App\Models\Employee;
 use App\Models\Position;
 use App\Models\Role;
 use App\Models\User;
+use Illuminate\Auth\Notifications\VerifyEmail;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Facades\URL;
 use Tests\TestCase;
 
 class EmployeesControllerTest extends TestCase
@@ -26,129 +30,350 @@ class EmployeesControllerTest extends TestCase
 
     use RefreshDatabase;
 
-    protected $user;
-
-    protected function setUp(): void
+    /**
+     * Test successful user registration with email verification.
+     */
+    public function test_user_can_register_successfully()
     {
-        parent::setUp();
+        Notification::fake();
 
-        // Membuat pengguna untuk autentikasi
-        $this->user = User::factory()->create([
-            'role_id' => Role::factory()->create()->id,
-        ]);
-        $this->user->employee = Employee::factory()->create([
-            'user_id' => $this->user->id,
-            'department_id' => Department::factory()->create()->id,
-            'position_id' => Position::factory()->create()->id,
-        ]);
-    }
-
-    /** @test */
-    public function it_can_display_employees_index_page()
-    {
-        $employees = Employee::factory()->count(3)->create();
-
-        $response = $this->actingAs($this->user)->get(route('employees-data'));
-
-        $response->assertStatus(200);
-        $response->assertViewIs('pages.employees-data');
-        $response->assertViewHas('employees', function ($viewEmployees) use ($employees) {
-            return $viewEmployees->count() === $employees->count();
-        });
-    }
-
-    /** @test */
-    public function it_can_display_create_employee_form()
-    {
-        $roles = Role::factory()->count(2)->create();
-        $departments = Department::factory()->count(2)->create();
-        $positions = Position::factory()->count(2)->create();
-
-        $response = $this->actingAs($this->user)->get(route('employees-data.create'));
-
-        $response->assertStatus(200);
-        $response->assertViewIs('pages.employees-data_create');
-        $response->assertViewHas('roles', fn ($viewRoles) => $viewRoles->count() === $roles->count());
-        $response->assertViewHas('departments', fn ($viewDepartments) => $viewDepartments->count() === $departments->count());
-        $response->assertViewHas('positions', fn ($viewPositions) => $viewPositions->count() === $positions->count());
-    }
-
-    /** @test */
-    public function it_can_display_employee_details()
-    {
-        $employee = Employee::factory()->create([
-            'user_id' => User::factory()->create()->id,
-            'department_id' => Department::factory()->create()->id,
-            'position_id' => Position::factory()->create()->id,
+        $response = $this->post('/register', [
+            'name' => 'John Doe',
+            'email' => 'john@example.com',
+            'password' => 'password123',
+            'password_confirmation' => 'password123',
         ]);
 
-        $response = $this->actingAs($this->user)->get(route('employees-data.show', $employee));
-
-        $response->assertStatus(200);
-        $response->assertViewIs('pages.employees-data_show');
-        $response->assertViewHas('employee', fn ($viewEmployee) => $viewEmployee->id === $employee->id);
-    }
-
-    /** @test */
-    public function it_can_display_edit_employee_form()
-    {
-        $employee = Employee::factory()->create([
-            'user_id' => User::factory()->create()->id,
-            'department_id' => Department::factory()->create()->id,
-            'position_id' => Position::factory()->create()->id,
-        ]);
-        $roles = Role::factory()->count(2)->create();
-        $departments = Department::factory()->count(2)->create();
-        $positions = Position::factory()->count(2)->create();
-
-        $response = $this->actingAs($this->user)->get(route('employees-data.edit', $employee));
-
-        $response->assertStatus(200);
-        $response->assertViewIs('pages.employees-data_edit');
-        $response->assertViewHas('employee', fn ($viewEmployee) => $viewEmployee->id === $employee->id);
-        $response->assertViewHas('roles', fn ($viewRoles) => $viewRoles->count() === $roles->count());
-        $response->assertViewHas('departments', fn ($viewDepartments) => $viewDepartments->count() === $departments->count());
-        $response->assertViewHas('positions', fn ($viewPositions) => $viewPositions->count() === $positions->count());
-    }
-
-    /** @test */
-    public function it_can_delete_employee()
-    {
-        $employee = Employee::factory()->create([
-            'user_id' => User::factory()->create()->id,
-            'department_id' => Department::factory()->create()->id,
-            'position_id' => Position::factory()->create()->id,
+        $response->assertRedirect('/email/verify');
+        $this->assertDatabaseHas('users', [
+            'email' => 'john@example.com',
+            'name' => 'John Doe',
+            'email_verified_at' => null,
         ]);
 
-        $response = $this->actingAs($this->user)->delete(route('employees-data.destroy', $employee));
+        $user = User::where('email', 'john@example.com')->first();
+        $this->assertTrue(Hash::check('password123', $user->password));
+        Notification::assertSentTo($user, VerifyEmail::class);
+    }
 
-        $response->assertRedirect(route('employees-data'));
-        $response->assertSessionHas('status', 'Successfully deleted an employee.');
+    /**
+     * Test registration fails with invalid data.
+     */
+    public function test_registration_fails_with_invalid_data()
+    {
+        $response = $this->post('/register', [
+            'name' => '',
+            'email' => 'invalid-email',
+            'password' => 'short',
+            'password_confirmation' => 'different',
+        ]);
 
-        $this->assertDatabaseMissing('users', ['id' => $employee->user_id]);
-        $this->assertDatabaseMissing('employees', ['id' => $employee->id]);
-        $this->assertDatabaseHas('logs', [
-            'description' => $this->user->employee->name." deleted an employee named '{$employee->name}'",
+        $response->assertSessionHasErrors(['name', 'email', 'password']);
+        $this->assertDatabaseMissing('users', [
+            'email' => 'invalid-email',
         ]);
     }
 
-    /** @test */
-    public function it_can_display_print_employees_page()
+    /**
+     * Test registration fails with duplicate email.
+     */
+    public function test_registration_fails_with_duplicate_email()
     {
-        $employees = Employee::factory()->count(3)->create();
+        User::create([
+            'name' => 'Existing User',
+            'email' => 'john@example.com',
+            'password' => Hash::make('password123'),
+        ]);
 
-        $response = $this->actingAs($this->user)->get(route('employees-data.print'));
+        $response = $this->post('/register', [
+            'name' => 'John Doe',
+            'email' => 'john@example.com',
+            'password' => 'password123',
+            'password_confirmation' => 'password123',
+        ]);
 
-        $response->assertStatus(200);
-        $response->assertViewIs('pages.employees-data_print');
-        $response->assertViewHas('employees', fn ($viewEmployees) => $viewEmployees->count() === $employees->count());
+        $response->assertSessionHasErrors(['email']);
     }
 
-    /** @test */
-    public function it_restricts_access_to_unauthenticated_users()
+    /**
+     * Test registration fails with missing required fields.
+     */
+    public function test_registration_fails_with_missing_fields()
     {
-        $response = $this->get(route('employees-data'));
+        $response = $this->post('/register', []);
+
+        $response->assertSessionHasErrors(['name', 'email', 'password']);
+        $this->assertDatabaseCount('users', 0);
+    }
+
+    /**
+     * Test successful login with valid credentials and verified email.
+     */
+    public function test_user_can_login_with_valid_credentials_and_verified_email()
+    {
+        $user = User::create([
+            'name' => 'John Doe',
+            'email' => 'john@example.com',
+            'password' => Hash::make('password123'),
+            'is_active' => true,
+            'email_verified_at' => now(),
+        ]);
+
+        $response = $this->post('/login', [
+            'email' => 'john@example.com',
+            'password' => 'password123',
+        ]);
+
+        $response->assertRedirect(RouteServiceProvider::HOME);
+        $this->assertAuthenticatedAs($user);
+    }
+
+    /**
+     * Test login fails with unverified email.
+     */
+    public function test_login_fails_with_unverified_email()
+    {
+        $user = User::create([
+            'name' => 'John Doe',
+            'email' => 'john@example.com',
+            'password' => Hash::make('password123'),
+            'is_active' => true,
+            'email_verified_at' => null,
+        ]);
+
+        $response = $this->post('/login', [
+            'email' => 'john@example.com',
+            'password' => 'password123',
+        ]);
+
+        $response->assertRedirect('/email/verify');
+        $this->assertGuest();
+    }
+
+    /**
+     * Test login fails with inactive user.
+     */
+    public function test_login_fails_with_inactive_user()
+    {
+        $user = User::create([
+            'name' => 'John Doe',
+            'email' => 'john@example.com',
+            'password' => Hash::make('password123'),
+            'is_active' => false,
+            'email_verified_at' => now(),
+        ]);
+
+        $response = $this->post('/login', [
+            'email' => 'john@example.com',
+            'password' => 'password123',
+        ]);
+
+        $response->assertSessionHasErrors(['email']);
+        $this->assertGuest();
+    }
+
+    /**
+     * Test login fails with invalid credentials.
+     */
+    public function test_login_fails_with_invalid_credentials()
+    {
+        $user = User::create([
+            'name' => 'John Doe',
+            'email' => 'john@example.com',
+            'password' => Hash::make('password123'),
+            'is_active' => true,
+            'email_verified_at' => now(),
+        ]);
+
+        $response = $this->post('/login', [
+            'email' => 'john@example.com',
+            'password' => 'wrongpassword',
+        ]);
+
+        $response->assertSessionHasErrors(['email']);
+        $this->assertGuest();
+    }
+
+    /**
+     * Test login fails with missing credentials.
+     */
+    public function test_login_fails_with_missing_credentials()
+    {
+        $response = $this->post('/login', []);
+
+        $response->assertSessionHasErrors(['email', 'password']);
+        $this->assertGuest();
+    }
+
+    /**
+     * Test successful email verification.
+     */
+    public function test_user_can_verify_email()
+    {
+        $user = User::create([
+            'name' => 'John Doe',
+            'email' => 'john@example.com',
+            'password' => Hash::make('password123'),
+            'email_verified_at' => null,
+        ]);
+
+        $this->actingAs($user);
+        $verificationUrl = URL::temporarySignedRoute(
+            'verification.verify',
+            now()->addMinutes(60),
+            ['id' => $user->id, 'hash' => sha1($user->email)]
+        );
+
+        $response = $this->get($verificationUrl);
+
+        $response->assertRedirect(RouteServiceProvider::HOME);
+        $this->assertNotNull($user->fresh()->email_verified_at);
+    }
+
+    /**
+     * Test email verification fails with invalid signed URL.
+     */
+    public function test_email_verification_fails_with_invalid_signature()
+    {
+        $user = User::create([
+            'name' => 'John Doe',
+            'email' => 'john@example.com',
+            'password' => Hash::make('password123'),
+            'email_verified_at' => null,
+        ]);
+
+        $this->actingAs($user);
+        $invalidUrl = route('verification.verify', [
+            'id' => $user->id,
+            'hash' => 'invalid-hash',
+        ]);
+
+        $response = $this->get($invalidUrl);
+
+        $response->assertStatus(403);
+        $this->assertNull($user->fresh()->email_verified_at);
+    }
+
+    /**
+     * Test email verification fails for unauthenticated user.
+     */
+    public function test_email_verification_fails_for_unauthenticated_user()
+    {
+        $user = User::create([
+            'name' => 'John Doe',
+            'email' => 'john@example.com',
+            'password' => Hash::make('password123'),
+            'email_verified_at' => null,
+        ]);
+
+        $verificationUrl = URL::temporarySignedRoute(
+            'verification.verify',
+            now()->addMinutes(60),
+            ['id' => $user->id, 'hash' => sha1($user->email)]
+        );
+
+        $response = $this->get($verificationUrl);
 
         $response->assertRedirect('/login');
+        $this->assertNull($user->fresh()->email_verified_at);
+    }
+
+    /**
+     * Test resending verification email.
+     */
+    public function test_user_can_resend_verification_email()
+    {
+        Notification::fake();
+
+        $user = User::create([
+            'name' => 'John Doe',
+            'email' => 'john@example.com',
+            'password' => Hash::make('password123'),
+            'email_verified_at' => null,
+        ]);
+
+        $this->actingAs($user);
+        $response = $this->post('/email/resend');
+
+        $response->assertSessionHas('status', 'Verification link sent!');
+        Notification::assertSentTo($user, VerifyEmail::class);
+    }
+
+    /**
+     * Test resend verification email fails for verified user.
+     */
+    public function test_resend_verification_fails_for_verified_user()
+    {
+        Notification::fake();
+
+        $user = User::create([
+            'name' => 'John Doe',
+            'email' => 'john@example.com',
+            'password' => Hash::make('password123'),
+            'email_verified_at' => now(),
+        ]);
+
+        $this->actingAs($user);
+        $response = $this->post('/email/resend');
+
+        $response->assertRedirect(RouteServiceProvider::HOME);
+        Notification::assertNotSentTo($user, VerifyEmail::class);
+    }
+
+    /**
+     * Test rate-limiting on resend verification email.
+     */
+    public function test_resend_verification_email_is_rate_limited()
+    {
+        Notification::fake();
+
+        $user = User::create([
+            'name' => 'John Doe',
+            'email' => 'john@example.com',
+            'password' => Hash::make('password123'),
+            'email_verified_at' => null,
+        ]);
+
+        $this->actingAs($user);
+
+        for ($i = 0; $i < 6; $i++) {
+            $this->post('/email/resend');
+        }
+
+        $response = $this->post('/email/resend');
+        $response->assertStatus(429); // Too Many Requests
+    }
+
+    /**
+     * Test rate-limiting on email verification attempts.
+     */
+    public function test_email_verification_is_rate_limited()
+    {
+        $user = User::create([
+            'name' => 'John Doe',
+            'email' => 'john@example.com',
+            'password' => Hash::make('password123'),
+            'email_verified_at' => null,
+        ]);
+
+        $this->actingAs($user);
+
+        for ($i = 0; $i < 6; $i++) {
+            $verificationUrl = URL::temporarySignedRoute(
+                'verification.verify',
+                now()->addMinutes(60),
+                ['id' => $user->id, 'hash' => sha1($user->email)]
+            );
+            $this->get($verificationUrl);
+        }
+
+        $verificationUrl = URL::temporarySignedRoute(
+            'verification.verify',
+            now()->addMinutes(60),
+            ['id' => $user->id, 'hash' => sha1($user->email)]
+        );
+        $response = $this->get($verificationUrl);
+
+        $response->assertStatus(429); // Too Many Requests
     }
 }
