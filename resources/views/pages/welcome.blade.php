@@ -10,7 +10,7 @@
     <div class="row hero">
         <div class="col-8 offset-1 d-flex align-items-center">
             <div>
-                <h1 class="text-white font-weight-bold text-capitalize">PT. Pipeline Jaya Sentosa</h1>
+                <h1 class="text-white font-weight-bold text-capitalize">PT. Pipeline Jaya Wijaya</h1>
                 <h4 class="text-white">Perusahaan yang bergerak di bidang pengembangan game.</h4>
             </div>
         </div>
