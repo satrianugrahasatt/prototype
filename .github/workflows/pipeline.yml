@@ -90,7 +90,7 @@ jobs:
       - name: Merge feature into main
         run: |
           git fetch origin
-          git checkout -b feature origin/feature
+          git checkout feature || git checkout -b feature origin/feature
           git checkout -b main origin/main
           git merge feature --no-ff -m "Auto-merge from feature to main"
           git push origin main
