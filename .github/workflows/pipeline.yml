@@ -4,6 +4,10 @@ on:
   push:
     branches:
       - feature
+      - main
+  pull_request:
+    branches:
+      - main
 
 jobs:
   ci:
@@ -99,7 +103,7 @@ jobs:
 
   cd:
     name: Deploy to GCP Cloud Run
-    needs: ci
+    needs: [ci, auto-merge]
     runs-on: ubuntu-latest
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
 
