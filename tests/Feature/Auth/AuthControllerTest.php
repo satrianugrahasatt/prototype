@@ -108,8 +108,6 @@ class AuthControllerTest extends TestCase
     /**
      * Test login fails with missing credentials.
      */
-
-    /** */
     public function test_login_fails_with_missing_credentials()
     {
         $response = $this->post('/login', []);
