@@ -103,7 +103,7 @@ jobs:
     needs: auto-merge
     runs-on: ubuntu-latest
     if: success()
-
+    
     env:
       GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
 
