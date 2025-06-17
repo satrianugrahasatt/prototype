@@ -98,7 +98,7 @@ class AuthControllerTest extends TestCase
 
         $response = $this->post('/login', [
             'email' => 'john@example.com',
-            'password' => 'wrongpassword',
+            'passwordd' => 'wrongpassword',
         ]);
 
         $response->assertSessionHasErrors(['email']);
