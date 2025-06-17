@@ -20,7 +20,7 @@ The application was a requirement for my college "On the Job Training" studies i
 
 ### Login Credentials
 
-You can log into the application with this credentials (if you did the database seeding).
+You can log into the application with this credentials (if you did the database seeding)..
 
 -   Username: `admin@gmail.com`
 -   Password: `admin`
