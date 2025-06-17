@@ -103,7 +103,7 @@ jobs:
     needs: auto-merge
     runs-on: ubuntu-latest
     if: success()
-    
+
     env:
       GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
 
@@ -124,26 +124,15 @@ jobs:
       - name: Configure Docker for GCR
         run: gcloud auth configure-docker gcr.io --quiet
 
+      - name: Debug Docker Config
+        run: cat ~/.docker/config.json
+
       - name: Build and Push Docker Image
         run: |
           docker build -t gcr.io/${{ secrets.GCP_PROJECT_ID }}/gcr:${{ github.sha }} .
           docker push gcr.io/${{ secrets.GCP_PROJECT_ID }}/gcr:${{ github.sha }}
 
-      - name: Deploy to Cloud Run
-        run: |
-          gcloud run deploy hrms-service \
-            --image gcr.io/${{ secrets.GCP_PROJECT_ID }}/gcr:${{ github.sha }} \
-            --platform managed \
-            --region us-central1 \
-            --service-account hrms-deployment@feisty-reality-461020-d5.iam.gserviceaccount.com \
-            --set-env-vars "APP_ENV=production,APP_DEBUG=false,APP_KEY=${{ secrets.APP_KEY }},DB_CONNECTION=mysql,DB_HOST=${{ secrets.CLOUD_SQL_HOST }},DB_PORT=3306,DB_DATABASE=fp_pso,DB_USERNAME=root,DB_PASSWORD=,APP_LOG_CHANNEL=stack" \
-            --timeout 600 \
-            --memory 512Mi \
-            --cpu 1 \
-            --allow-unauthenticated \
-            --quiet
-
-      - name: Run Laravel Post-Deploy Commands
+      - name: Clear Laravel Cache
         run: |
           docker run --rm \
             -e DB_CONNECTION=mysql \
@@ -154,13 +143,22 @@ jobs:
             -e DB_PASSWORD='' \
             -e APP_KEY=${{ secrets.APP_KEY }} \
             gcr.io/${{ secrets.GCP_PROJECT_ID }}/gcr:${{ github.sha }} \
-            sh -c "
-              php artisan config:clear &&
-              php artisan migrate --force &&
-              php artisan cache:clear
-            "
+            php artisan config:clear
 
-      - name: Test DB Connection
+      - name: Check Migration Status
+        run: |
+          docker run --rm \
+            -e DB_CONNECTION=mysql \
+            -e DB_HOST=${{ secrets.CLOUD_SQL_HOST }} \
+            -e DB_PORT=3306 \
+            -e DB_DATABASE=fp_pso \
+            -e DB_USERNAME=root \
+            -e DB_PASSWORD='' \
+            -e APP_KEY=${{ secrets.APP_KEY }} \
+            gcr.io/${{ secrets.GCP_PROJECT_ID }}/gcr:${{ github.sha }} \
+            php artisan migrate:status
+
+      - name: Test Database Connection
         run: |
           docker run --rm \
             -e DB_CONNECTION=mysql \
@@ -173,5 +171,39 @@ jobs:
             gcr.io/${{ secrets.GCP_PROJECT_ID }}/gcr:${{ github.sha }} \
             php artisan tinker --execute="DB::connection()->getPdo(); echo 'Database connection successful';"
 
+      - name: Run Database Migrations
+        run: |
+          docker run --rm \
+            -e DB_CONNECTION=mysql \
+            -e DB_HOST=${{ secrets.CLOUD_SQL_HOST }} \
+            -e DB_PORT=3306 \
+            -e DB_DATABASE=fp_pso \
+            -e DB_USERNAME=root \
+            -e DB_PASSWORD='' \
+            -e APP_KEY=${{ secrets.APP_KEY }} \
+            gcr.io/${{ secrets.GCP_PROJECT_ID }}/gcr:${{ github.sha }} \
+            php artisan migrate --force
+
+      - name: Verify File Permissions
+        run: |
+          docker run --rm \
+            gcr.io/${{ secrets.GCP_PROJECT_ID }}/gcr:${{ github.sha }} \
+            ls -ld /var/www/html/storage /var/www/html/bootstrap/cache
+
+      - name: Deploy to Cloud Run
+        run: |
+          gcloud run deploy hrms-service \
+            --image gcr.io/${{ secrets.GCP_PROJECT_ID }}/gcr:${{ github.sha }} \
+            --platform managed \
+            --region us-central1 \
+            --service-account hrms-deployment@feisty-reality-461020-d5.iam.gserviceaccount.com \
+            --set-env-vars "APP_ENV=production,APP_DEBUG=false,APP_KEY=${{ secrets.APP_KEY }},DB_CONNECTION=mysql,DB_HOST=${{ secrets.CLOUD_SQL_HOST }},DB_PORT=3306,DB_DATABASE=fp_pso,DB_USERNAME=root,DB_PASSWORD=,APP_LOG_CHANNEL=stack" \
+            --timeout 600 \
+            --memory 1Gi \
+            --cpu 2 \
+            --allow-unauthenticated \
+            --quiet
+
       - name: Notify Success
+        if: success()
         run: echo "✅ Deployment Succeeded"
