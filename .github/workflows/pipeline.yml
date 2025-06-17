@@ -94,7 +94,7 @@ jobs:
           git merge origin/feature --no-ff -m "Auto-merge from feature to main"
           git push origin main
         env:
-          GITHUB_TOKEN: ${{ secrets.PERSONAL_TOKEN }}  # PAT dengan izin repo:status, repo:write
+          GITHUB_TOKEN: ${{ secrets.GIT_TOKEN }}  # PAT dengan izin repo:status, repo:write
 
   cd:
     name: Deploy to GCP Cloud Run
@@ -174,5 +174,5 @@ jobs:
       - name: Notify Success
         run: echo "✅ Deployment Succeeded"
 
-    # Gagal deployment maka workflow gagal
+    # Gagal deployment maka workflow tidak berhasil
     continue-on-error: false
