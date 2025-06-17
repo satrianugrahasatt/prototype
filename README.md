@@ -158,7 +158,7 @@ Hashing dipercepat, Telescope nonaktif.
 
 ### Login Credentials
 
-You can log into the application with this credentials (if you did the database seeding)..
+You can log into the application with this credentials (if you did the database seeding).
 
 -   Username: `admin@gmail.com`
 -   Password: `admin`
