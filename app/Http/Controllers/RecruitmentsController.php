@@ -6,7 +6,6 @@ use App\Http\Requests\StoreRecruitmentRequest;
 use App\Models\Log;
 use App\Models\Position;
 use App\Models\Recruitment;
-use Illuminate\Http\Request;
 
 class RecruitmentsController extends Controller
 {
@@ -14,10 +13,11 @@ class RecruitmentsController extends Controller
 
     public function __construct()
     {
-        $this->middleware('auth');  
-        
+        $this->middleware('auth');
+
         $this->recruitments = resolve(Recruitment::class);
     }
+
     /**
      * Display a listing of the resource.
      *
@@ -26,6 +26,7 @@ class RecruitmentsController extends Controller
     public function index()
     {
         $recruitments = $this->recruitments->paginate();
+
         return view('pages.recruitments', compact('recruitments'));
     }
 
@@ -37,6 +38,7 @@ class RecruitmentsController extends Controller
     public function create()
     {
         $positions = Position::where('open_for_recruitment', 1)->latest()->get();
+
         return view('pages.recruitments_create', compact('positions'));
     }
 
@@ -54,14 +56,14 @@ class RecruitmentsController extends Controller
             'description' => $request->input('description'),
         ];
 
-        if($request->has('attachment') && $request->attachment !== null) {
-            $createArray["attachment"] = $request->file('attachment')->store('attachments', 'public');
+        if ($request->has('attachment') && $request->attachment !== null) {
+            $createArray['attachment'] = $request->file('attachment')->store('attachments', 'public');
         }
 
         $this->recruitments->create($createArray);
 
         Log::create([
-            'description' => auth()->user()->employee->name . " created a recruitment titled '" . $request->input('title') . "'"
+            'description' => auth()->user()->employee->name." created a recruitment titled '".$request->input('title')."'",
         ]);
 
         return redirect()->route('recruitments')->with('status', 'Successfully created a recruitment.');
@@ -70,24 +72,24 @@ class RecruitmentsController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\Models\Recruitment  $recruitment
      * @return \Illuminate\Http\Response
      */
     public function show(Recruitment $recruitment)
     {
         $recruitmentCandidates = $recruitment->recruitmentCanditate()->paginate(10);
+
         return view('pages.recruitments_show', compact('recruitment', 'recruitmentCandidates'));
     }
 
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\Models\Recruitment  $recruitment
      * @return \Illuminate\Http\Response
      */
     public function edit(Recruitment $recruitment)
     {
         $positions = Position::where('open_for_recruitment', 1)->latest()->get();
+
         return view('pages.recruitments_edit', compact('recruitment', 'positions'));
     }
 
@@ -95,7 +97,6 @@ class RecruitmentsController extends Controller
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Recruitment  $recruitment
      * @return \Illuminate\Http\Response
      */
     public function update(StoreRecruitmentRequest $request, Recruitment $recruitment)
@@ -104,17 +105,17 @@ class RecruitmentsController extends Controller
             'position_id' => $request->input('position_id'),
             'title' => $request->input('title'),
             'description' => $request->input('description'),
-            'is_active' => $request->input('is_active')
+            'is_active' => $request->input('is_active'),
         ];
 
-        if($request->has('attachment') && $request->attachment !== null) {
-            $updateArray["attachment"] = $request->file('attachment')->store('attachments', 'public');
+        if ($request->has('attachment') && $request->attachment !== null) {
+            $updateArray['attachment'] = $request->file('attachment')->store('attachments', 'public');
         }
 
         $this->recruitments->whereId($recruitment->id)->update($updateArray);
 
         Log::create([
-            'description' => auth()->user()->employee->name . " updated a recruitment's detail titled '" . $recruitment->title . "'"
+            'description' => auth()->user()->employee->name." updated a recruitment's detail titled '".$recruitment->title."'",
         ]);
 
         return redirect()->route('recruitments')->with('status', 'Successfully updated recruitment.');
@@ -123,7 +124,6 @@ class RecruitmentsController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Models\Recruitment  $recruitment
      * @return \Illuminate\Http\Response
      */
     public function destroy(Recruitment $recruitment)
@@ -131,15 +131,16 @@ class RecruitmentsController extends Controller
         $this->recruitments->whereId($recruitment->id)->delete();
 
         Log::create([
-            'description' => auth()->user()->employee->name . " deleted a recruitment titled '" . $recruitment->title . "'"
+            'description' => auth()->user()->employee->name." deleted a recruitment titled '".$recruitment->title."'",
         ]);
 
         return redirect()->route('recruitments')->with('status', 'Successfully deleted recruitment.');
     }
 
-    public function print () 
+    public function print()
     {
         $recruitments = $this->recruitments->all();
+
         return view('pages.recruitments_print', compact('recruitments'));
     }
 }

@@ -9,13 +9,13 @@ use App\Http\Controllers\LogsController;
 use App\Http\Controllers\PositionsController;
 use App\Http\Controllers\ProfilesController;
 use App\Http\Controllers\RecruitmentCandidatesController;
+use App\Http\Controllers\RecruitmentsController;
 use App\Http\Controllers\RolesController;
 use App\Http\Controllers\ScoreCategoriesController;
 use App\Http\Controllers\UsersController;
 use App\Http\Controllers\WelcomeController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\RecruitmentsController;
 
 /*
 |--------------------------------------------------------------------------

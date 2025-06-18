@@ -46,13 +46,13 @@ class RecruitmentCandidatesController extends Controller
             'message' => $request->input('message'),
             'address' => $request->input('address'),
             'photo' => $request->file('photo')->store('photos', 'public'),
-            'cv' => $request->file('cv')->store('cvs', 'public')
+            'cv' => $request->file('cv')->store('cvs', 'public'),
         ]);
 
         $name = Recruitment::whereId($request->input('recruitment_id'))->first()->position->name;
 
         Log::create([
-            'description' => $request->input('name') . " applied for position named '" . $name . "'"
+            'description' => $request->input('name')." applied for position named '".$name."'",
         ]);
 
         return back()->with('status', 'Successfully apply for this job.');
@@ -61,7 +61,6 @@ class RecruitmentCandidatesController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\Models\RecruitmentCandidate  $recruitmentCandidate
      * @return \Illuminate\Http\Response
      */
     public function show(RecruitmentCandidate $recruitmentCandidate)
@@ -72,7 +71,6 @@ class RecruitmentCandidatesController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\Models\RecruitmentCandidate  $recruitmentCandidate
      * @return \Illuminate\Http\Response
      */
     public function edit(RecruitmentCandidate $recruitmentCandidate)
@@ -83,8 +81,6 @@ class RecruitmentCandidatesController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\RecruitmentCandidate  $recruitmentCandidate
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, RecruitmentCandidate $recruitmentCandidate)
@@ -95,7 +91,6 @@ class RecruitmentCandidatesController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Models\RecruitmentCandidate  $recruitmentCandidate
      * @return \Illuminate\Http\Response
      */
     public function destroy(RecruitmentCandidate $recruitmentCandidate)
