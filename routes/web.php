@@ -1,12 +1,10 @@
 <?php
 
 use App\Http\Controllers\AnnouncementsController;
-use App\Http\Controllers\UsersController;
 use App\Http\Controllers\AttendancesController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DepartmentsController;
 use App\Http\Controllers\EmployeeLeaveRequestsController;
-use App\Http\Controllers\EmployeeLeavesController;
 use App\Http\Controllers\EmployeesController;
 use App\Http\Controllers\EmployeeScoresController;
 use App\Http\Controllers\LogsController;
@@ -16,6 +14,7 @@ use App\Http\Controllers\RecruitmentCandidatesController;
 use App\Http\Controllers\RecruitmentsController;
 use App\Http\Controllers\RolesController;
 use App\Http\Controllers\ScoreCategoriesController;
+use App\Http\Controllers\UsersController;
 use App\Http\Controllers\WelcomeController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -34,7 +33,7 @@ use Illuminate\Support\Facades\Route;
 Auth::routes([
     'register' => false,
     'verify' => false,
-    'reset' => false
+    'reset' => false,
 ]);
 
 Route::get('/', [WelcomeController::class, 'index'])->name('welcome')->middleware('guest');
@@ -46,7 +45,7 @@ Route::post('/recruitment-candidates', [RecruitmentCandidatesController::class, 
 
 Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
-Route::middleware('check.access')->group(function() {
+Route::middleware('check.access')->group(function () {
     Route::get('/employees-data', [EmployeesController::class, 'index'])->name('employees-data');
     Route::get('/employees-data/create', [EmployeesController::class, 'create'])->name('employees-data.create');
     Route::get('/employees-data/print', [EmployeesController::class, 'print'])->name('employees-data.print');
