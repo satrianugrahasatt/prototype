@@ -4,7 +4,6 @@ use App\Http\Controllers\AnnouncementsController;
 use App\Http\Controllers\AttendancesController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DepartmentsController;
-use App\Http\Controllers\EmployeeLeaveRequestsController;
 use App\Http\Controllers\EmployeesController;
 use App\Http\Controllers\LogsController;
 use App\Http\Controllers\PositionsController;
@@ -110,6 +109,7 @@ Route::middleware('check.access')->group(function () {
     Route::post('/recruitments', [RecruitmentsController::class, 'store'])->name('recruitments.store');
     Route::put('/recruitments/{recruitment}', [RecruitmentsController::class, 'update'])->name('recruitments.update');
     Route::delete('/recruitments/{recruitment}', [RecruitmentsController::class, 'destroy'])->name('recruitments.destroy');
+<<<<<<< feature
     Route::get('/employees-leave-request', [EmployeeLeaveRequestsController::class, 'index'])->name('employees-leave-request');
     Route::get('/employees-leave-request/create', [EmployeeLeaveRequestsController::class, 'create'])->name('employees-leave-request.create');
     Route::get('/employees-leave-request/print', [EmployeeLeaveRequestsController::class, 'print'])->name('employees-leave-request.print');
@@ -118,4 +118,6 @@ Route::middleware('check.access')->group(function () {
     Route::post('/employees-leave-request', [EmployeeLeaveRequestsController::class, 'store'])->name('employees-leave-request.store');
     Route::put('/employees-leave-request/{employeeLeaveRequest}', [EmployeeLeaveRequestsController::class, 'update'])->name('employees-leave-request.update');
     Route::delete('/employees-leave-request/{employeeLeaveRequest}', [EmployeeLeaveRequestsController::class, 'destroy'])->name('employees-leave-request.destroy');
+=======
+>>>>>>> main
 });
